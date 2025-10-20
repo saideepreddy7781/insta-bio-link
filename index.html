@@ -81,8 +81,17 @@
         const App = () => {
             const [isModalOpen, setIsModalOpen] = React.useState(false);
             const [selectedJobUrl, setSelectedJobUrl] = React.useState('');
+            const [isVerified, setIsVerified] = React.useState(false);
 
             const instaUrl = 'https://instagram.com/saideep.talks';
+
+            // On component mount, check if the user has followed before from localStorage
+            React.useEffect(() => {
+                const hasFollowed = localStorage.getItem('hasFollowed');
+                if (hasFollowed === 'true') {
+                    setIsVerified(true);
+                }
+            }, []); // Empty dependency array ensures this runs only once
 
             const jobLinks = [
                 { id: 1, title: "SDE 1 @ Google (Referral)", url: "https://google.com/careers" },
@@ -90,8 +99,17 @@
                 { id: 3, title: "Data Analyst @ Zomato", url: "https://zomato.com/careers" },
                 { id: 4, title: "Backend Developer @ Swiggy", url: "https://swiggy.com/careers" },
             ];
+            
+            // Decides whether to open link directly or show the modal
+            const handleJobLinkClick = (url) => {
+                if (isVerified) {
+                    window.open(url, '_blank');
+                } else {
+                    openModal(url);
+                }
+            };
 
-            // Modal Functions
+            // --- Modal Functions ---
             const openModal = (url) => {
                 setSelectedJobUrl(url);
                 setIsModalOpen(true);
@@ -102,14 +120,25 @@
                 setSelectedJobUrl('');
             };
             
-            const proceedToJob = () => {
-                if(selectedJobUrl) {
+            // Handles the "Follow" button: unlocks the site and opens Instagram
+            const handleFollowClick = () => {
+                localStorage.setItem('hasFollowed', 'true');
+                setIsVerified(true);
+                window.open(instaUrl, '_blank');
+                closeModal();
+            };
+
+            // Handles the "Continue" button: unlocks site and opens job link
+            const handleContinueClick = () => {
+                localStorage.setItem('hasFollowed', 'true');
+                setIsVerified(true);
+                if (selectedJobUrl) {
                     window.open(selectedJobUrl, '_blank');
                 }
                 closeModal();
             };
 
-            // Job Links Component - now shown by default
+            // --- Components ---
             const JobLinks = () => (
                  <div className="w-full space-y-4 animate-fade-in">
                     <h2 className="text-xl font-bold text-center mb-4">Exclusive Job Apply Links</h2>
@@ -117,7 +146,7 @@
                         {jobLinks.map((link) => (
                             <button
                                 key={link.id}
-                                onClick={() => openModal(link.url)}
+                                onClick={() => handleJobLinkClick(link.url)}
                                 className="block w-full text-center p-4 apple-button standard"
                             >
                                 {link.title}
@@ -127,23 +156,22 @@
                 </div>
             );
 
-            // Modal Component
             const FollowModal = () => {
                 if (!isModalOpen) return null;
 
                 return (
-                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-                        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-lg max-w-sm w-full text-center animate-slide-in border border-white/20">
-                            <h3 className="text-xl font-bold mb-3">One Last Step!</h3>
+                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in" onClick={closeModal}>
+                        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-lg max-w-sm w-full text-center animate-slide-in border border-white/20" onClick={(e) => e.stopPropagation()}>
+                            <h3 className="text-xl font-bold mb-3">Unlock Job Link</h3>
                             <p className="text-neutral-700 mb-6">
-                                For the latest updates, please support by following on Instagram.
+                                To access the link, please follow on Instagram first. Come back to this page after you've followed.
                             </p>
                             <div className="flex flex-col space-y-3">
-                                <a href={instaUrl} target="_blank" rel="noopener noreferrer" className="w-full p-3 apple-button primary">
+                                <button onClick={handleFollowClick} className="w-full p-3 apple-button primary">
                                     Follow on Instagram
-                                </a>
-                                <button onClick={proceedToJob} className="w-full p-3 apple-button standard">
-                                    Continue to Job Link
+                                </button>
+                                <button onClick={handleContinueClick} className="w-full p-3 apple-button standard">
+                                    I've Followed, Continue
                                 </button>
                                 <button onClick={closeModal} className="text-sm text-blue-500 hover:text-blue-600 pt-2 font-semibold">
                                     Cancel
