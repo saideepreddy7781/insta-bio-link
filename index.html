@@ -85,14 +85,6 @@
 
             const instaUrl = 'https://instagram.com/saideep.talks';
 
-            // On component mount, check if the user has followed before from localStorage
-            React.useEffect(() => {
-                const hasFollowed = localStorage.getItem('hasFollowed');
-                if (hasFollowed === 'true') {
-                    setIsVerified(true);
-                }
-            }, []); // Empty dependency array ensures this runs only once
-
             const jobLinks = [
                 { id: 1, title: "SDE 1 @ Google (Referral)", url: "https://google.com/careers" },
                 { id: 2, title: "Frontend Intern @ Microsoft", url: "https://microsoft.com/careers" },
@@ -120,21 +112,10 @@
                 setSelectedJobUrl('');
             };
             
-            // Handles the "Follow" button: unlocks the site and opens Instagram
+            // Handles the "Follow" button: unlocks the site for the session and opens Instagram
             const handleFollowClick = () => {
-                localStorage.setItem('hasFollowed', 'true');
                 setIsVerified(true);
                 window.open(instaUrl, '_blank');
-                closeModal();
-            };
-
-            // Handles the "Continue" button: unlocks site and opens job link
-            const handleContinueClick = () => {
-                localStorage.setItem('hasFollowed', 'true');
-                setIsVerified(true);
-                if (selectedJobUrl) {
-                    window.open(selectedJobUrl, '_blank');
-                }
                 closeModal();
             };
 
@@ -164,17 +145,11 @@
                         <div className="bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-lg max-w-sm w-full text-center animate-slide-in border border-white/20" onClick={(e) => e.stopPropagation()}>
                             <h3 className="text-xl font-bold mb-3">Unlock Job Link</h3>
                             <p className="text-neutral-700 mb-6">
-                                To access the link, please follow on Instagram first. Come back to this page after you've followed.
+                                Please follow on Instagram to unlock the links. Once you follow, come back and click the job link again.
                             </p>
                             <div className="flex flex-col space-y-3">
                                 <button onClick={handleFollowClick} className="w-full p-3 apple-button primary">
                                     Follow on Instagram
-                                </button>
-                                <button onClick={handleContinueClick} className="w-full p-3 apple-button standard">
-                                    I've Followed, Continue
-                                </button>
-                                <button onClick={closeModal} className="text-sm text-blue-500 hover:text-blue-600 pt-2 font-semibold">
-                                    Cancel
                                 </button>
                             </div>
                         </div>
